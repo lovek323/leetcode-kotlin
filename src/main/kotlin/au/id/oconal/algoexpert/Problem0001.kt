@@ -1,28 +1,9 @@
 package au.id.oconal.algoexpert
 
-/**
- * # Two Number Sum
- *
- * Write a function that takes in a non-empty array of distinct integers and an integer representing
- * a target sum. If any two numbers in the input array sum up to the target sum, the function should
- * return them in an array, in any order. If no two numbers sum up to the target sum, the function
- * should return an empty array.
- *
- * Note that the target sum has to be obtained by summing two different integers in the array; you
- * can't add a single integer to itself in order to obtain the target sum.
- *
- * You can assume that there will be at most one pair of numbers summing up to the target sum.
- *
- * ## Optimal Space & Time Complexity
- *
- * `O(N)` time | `O(N)` space where `N` is the length of the input array.
- */
+/** Two Number Sum */
 class Problem0001 {
   /**
-   * ## Brute-Force Algorithm
-   *
-   * **Hint 1:** Try using two for loops to sum all possible pairs of numbers in the input array.
-   * What are the time and space implications of this approach?
+   * Brute-Force Algorithm
    *
    * **Time complexity:** O(N^2)
    *
@@ -38,20 +19,7 @@ class Problem0001 {
       .firstOrNull { it[0] + it[1] == targetSum } ?: emptyList()
 
   /**
-   * 1. Sort the array - O(N log N)
-   * 2. Initialise a `left` pointer (left) set to the first element of the array
-   * 3. Initialise a `right` pointer (right) set to the last element of the array
-   * 4. We can then sum up the values at `left` and `right` and call this `sum`
-   * 5. We can compare this sum S to the targetSum
-   * 6. If `sum < targetSum`
-   *         1. If we move `right` to the left, then we'll only end up with a smaller number (as
-   *            moving to the left goes to smaller numbers)
-   *         2. So we know we need to move the `left` pointer to the right
-   * 7. If `sum > targetSum`
-   *     1. If we move `left to the right, we'll only end up with a larger number (as moving to the
-   *        right goes to larger numbers)
-   *     2. So we know that we need to move the `right` pointer to the left
-   * 8. If `sum == targetSum`, we return the values at `left` and `right`
+   * Two Pointers
    *
    * **Time complexity:** `O(N)` time
    *
@@ -70,21 +38,7 @@ class Problem0001 {
   }
 
   /**
-   * ## Hash Table
-   *
-   * **Hint 2:** Realise that for every number `X` in the input array, you are essentially trying to
-   * find a corresponding number `Y` such that `X + Y = targetSum`. With two variables in this
-   * equation known to you, it shouldn't be hard to solve for `Y`.
-   *
-   * **Hint 3:** Try storing every number in a hash table, solving the equation mentioned in hint 2
-   * for every number, and checking if the `Y` that you find is stored in the hash table. What are
-   * the time and space implications of this approach?
-   *
-   * Using this information, we can improve to `O(N)`:
-   * 1. Loop through every integer (`num1`) in the input array
-   *     1. Compute the value (`num2`) required to reach the target
-   *     2. Store `num1` in a hash table
-   *     3. If `num2` is in the hash table, return it
+   * Hash Table
    *
    * **Time complexity:** O(N)
    *
