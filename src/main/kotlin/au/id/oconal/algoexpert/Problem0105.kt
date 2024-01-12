@@ -1,6 +1,8 @@
-@file:Suppress("DuplicatedCode")
+@file:Suppress("DuplicatedCode", "ReplaceManualRangeWithIndicesCalls")
 
 package au.id.oconal.algoexpert
+
+import java.util.Stack
 
 /**
  * Four Number Sum
@@ -11,7 +13,7 @@ package au.id.oconal.algoexpert
  */
 class Problem0105 {
   /**
-   * Using my three-number sum algorithm.
+   * Split into Two
    * 1. Create an output list
    * 2. Create a hash table
    * 3. Loop through every value in the input array, index: `index1`, value: `num1`
