@@ -17,17 +17,4 @@ class Problem0029 {
     }
     return true
   }
-
-
-  fun semordnilap(words: List<String>): List<List<String>> {
-    // First, for each word, get all the other possible words based on string length
-    val wordGroups = hashMapOf<Int, MutableList<String>>()
-    words.forEach {
-      wordGroups.getOrPut(it.length) { mutableListOf() }.add(it)
-    }
-    wordGroups.values.filter { it.size > 1 }.forEach {
-      println(it)
-    }
-    return emptyList()
-  }
 }
