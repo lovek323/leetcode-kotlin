@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class TTLTTLCacheTest {
+class TTLCacheTest {
 
   @Test
   fun testExpiry() = runTest {

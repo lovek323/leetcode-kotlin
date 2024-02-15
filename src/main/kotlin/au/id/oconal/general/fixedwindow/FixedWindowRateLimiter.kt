@@ -1,40 +1,53 @@
 package au.id.oconal.general.fixedwindow
 
-import java.time.LocalDateTime
-import java.time.ZoneOffset
+import java.lang.System.currentTimeMillis
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.AtomicInteger
+import kotlin.system.measureTimeMillis
 
-data class RequestInformation(val clientId: String)
+class FixedWindowRateLimiter(private val maxRequests: Int, private val windowSizeInMillis: Long) {
+  /** Store the timestamp (as the key), and the count of requests (as the value) for that window. */
+  private val requests = ConcurrentHashMap<Long, AtomicInteger>()
 
-class FixedWindowRateLimiter(private val clientRequestsPerSecond: HashMap<String, Int>) {
-  enum class RateLimitResult {
-    Accepted,
-    Rejected
+  /** Try to acquire permission to proceed with a request. */
+  fun tryAcquire(): Boolean {
+    // Calculate the current window key
+    val currentWindowKey = currentTimeMillis() / windowSizeInMillis
+
+    // Use `computeIfAbsent` to handle thread-safe lazy initialisation
+    val requestCount = requests.computeIfAbsent(currentWindowKey) { AtomicInteger(0) }
+
+    // Clean up the expired windows
+    cleanup(currentWindowKey)
+
+    // Atomically increment the count and check if the request is within the rate limits
+    val currentCount = requestCount.incrementAndGet()
+    return if (currentCount <= maxRequests) true
+    else {
+      requestCount.decrementAndGet()
+      false // Rate limit exceeded
+    }
   }
 
-  companion object {
-    const val DEFAULT_REQUESTS_PER_SECOND = 100
+  private fun cleanup(currentWindowKey: Long) {
+    val expiredKeys = requests.keys.filter { it < currentWindowKey }
+    expiredKeys.forEach { requests.remove(it) }
+  }
+}
+
+fun main() {
+  val rateLimiter = FixedWindowRateLimiter(maxRequests = 10, windowSizeInMillis = 1000)
+
+  // Simulation of traffic
+  val duration = measureTimeMillis {
+    repeat(15) {
+      if (rateLimiter.tryAcquire()) {
+        println("Request allowed")
+      } else {
+        println("Request denied")
+      }
+    }
   }
 
-  private val currentTimestamp = AtomicLong(0)
-
-  /** A hash map of client IDs to request counts. */
-  private val requestCounts = ConcurrentHashMap<String, Int>()
-
-  /**
-   * Rate limit the client identified by the `clientId` in the `requestInformation` parameter. Limit
-   * to the number of requests allowed in the `clientConfiguration` map or default to
-   * `DEFAULT_REQUESTS_PER_SECOND`.
-   */
-  public fun rateLimit(requestInformation: RequestInformation): RateLimitResult {
-    val timestamp = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
-    if (currentTimestamp.getAndSet(timestamp) != timestamp) requestCounts.clear()
-    return if (
-      requestCounts.getOrPut(requestInformation.clientId) { 0 } >=
-        (clientRequestsPerSecond[requestInformation.clientId] ?: DEFAULT_REQUESTS_PER_SECOND)
-    )
-      RateLimitResult.Rejected
-    else RateLimitResult.Accepted
-  }
+  println("The rate limiter was evaluated in $duration ms")
 }
